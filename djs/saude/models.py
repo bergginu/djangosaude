@@ -16,7 +16,7 @@ class Exame(models.Model):
     dt_exame = models.DateField()
     peso = models.FloatField()
     altura = models.FloatField()
-    paciente = models.ForeignKey(Paciente)
+    paciente = models.ForeignKey(Paciente, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.nome
