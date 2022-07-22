@@ -1,0 +1,40 @@
+version: "2.4"
+   
+services:
+  db:
+    image: postgres
+    volumes:
+      - database:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 7
+
+  redis:
+    image: redis:6-alpine
+
+  web:
+    image: django-web
+    build:
+      context: .
+      dockerfile: ./docker/python
+    command: gunicorn /app/djs/djs.wsgi
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  database:
